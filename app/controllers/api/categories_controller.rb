@@ -1,41 +1,36 @@
 class Api::CategoriesController < Api::BaseController
   # jitera-anchor-dont-touch: before_action_filter
+  before_action :set_ingredient, only: %i[show update destroy]
 
   # jitera-anchor-dont-touch: actions
-  def destroy
-    @category = Category.find_by(id: params[:id])
-
-    @error_message = true unless @category&.destroy
-  end
-
-  def update
-    @category = Category.find_by(id: params[:id])
-
-    request = {}
-    request.merge!('description' => params.dig(:categories, :description))
-
-    @error_object = @category.errors.messages unless @category.update(request)
-  end
-
-  def show
-    @category = Category.find_by(id: params[:id])
-    @error_message = true if @category.blank?
+   def index
+    @categories = Category.includes(:recipes, :ingredients).all
   end
 
   def create
-    @category = Category.new
-
-    request = {}
-    request.merge!('description' => params.dig(:categories, :description))
-
-    @category.assign_attributes(request)
+    @category = Category.new(category_params)
     @error_object = @category.errors.messages unless @category.save
   end
 
-  def index
-    request = {}
-    request.merge!('description' => params.dig(:categories, :description))
+  def show
+    @error_message = true if @category.blank?
+  end
 
-    @categories = Category.all
+  def update
+    @error_object = @category.errors.messages unless @category.update(category_params)
+  end
+
+  def destroy
+    @error_message = true unless @category&.destroy
+  end
+
+  private
+
+  def set_category
+    @category = Category.find_by(id: params[:id])
+  end
+
+  def category_params
+    params.require(:category).permit(:description)
   end
 end

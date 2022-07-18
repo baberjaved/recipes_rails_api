@@ -42,6 +42,7 @@ gem 'importmap-rails', '~> 1.0'
 # 1.13.0 above is not compatible with M1 Mac Docker environment, need to update docker image later
 gem 'nokogiri', '1.12.5'
 gem 'rspec'
+gem 'interactor'
 
 group :production, :staging do
 end

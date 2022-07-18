@@ -162,6 +162,7 @@ GEM
     importmap-rails (1.1.2)
       actionpack (>= 6.0.0)
       railties (>= 6.0.0)
+    interactor (3.1.2)
     jbuilder (2.11.5)
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
@@ -425,6 +426,7 @@ GEM
     zeitwerk (2.6.0)
 
 PLATFORMS
+  x86_64-darwin-20
   x86_64-darwin-21
 
 DEPENDENCIES
@@ -447,6 +449,7 @@ DEPENDENCIES
   faker
   image_processing (~> 1.12.1)
   importmap-rails (~> 1.0)
+  interactor
   jbuilder (~> 2.11.5)
   kaminari
   letter_opener

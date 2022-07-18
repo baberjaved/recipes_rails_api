@@ -2,57 +2,46 @@ class Api::RecipesController < Api::BaseController
   # jitera-anchor-dont-touch: before_action_filter
   before_action :doorkeeper_authorize!, only: %w[index show update destroy]
   before_action :current_user_authenticate, only: %w[index show update destroy]
+  before_action :set_recipe, only: %i[show update destroy]
 
   # jitera-anchor-dont-touch: actions
-  def destroy
-    @recipe = Recipe.find_by(id: params[:id])
-    @error_message = true unless @recipe&.destroy
-  end
-
-  def update
-    @recipe = Recipe.find_by(id: params[:id])
-
-    request = {}
-    request.merge!('title' => params.dig(:recipes, :title))
-    request.merge!('descriptions' => params.dig(:recipes, :descriptions))
-    request.merge!('time' => params.dig(:recipes, :time))
-    request.merge!('difficulty' => params.dig(:recipes, :difficulty))
-    request.merge!('category_id' => params.dig(:recipes, :category_id))
-    request.merge!('user_id' => params.dig(:recipes, :user_id))
-
-    @error_object = @recipe.errors.messages unless @recipe.update(request)
-  end
-
-  def show
-    @recipe = Recipe.find_by(id: params[:id])
-    @error_message = true if @recipe.blank?
+  def index
+    result = FetchRecipes.call(scope: Recipe.includes(:ingredients).all, params: params)
+    @recipes = result.recipes
   end
 
   def create
-    @recipe = Recipe.new
-
-    request = {}
-    request.merge!('title' => params.dig(:recipes, :title))
-    request.merge!('descriptions' => params.dig(:recipes, :descriptions))
-    request.merge!('time' => params.dig(:recipes, :time))
-    request.merge!('difficulty' => params.dig(:recipes, :difficulty))
-    request.merge!('category_id' => params.dig(:recipes, :category_id))
-    request.merge!('user_id' => params.dig(:recipes, :user_id))
-
-    @recipe.assign_attributes(request)
+    @recipe = Recipe.new(recipe_params)
     @error_object = @recipe.errors.messages unless @recipe.save
   end
 
-  def index
-    request = {}
+  def show
+    @error_message = true if @recipe.blank?
+  end
 
-    request.merge!('title' => params.dig(:recipes, :title))
-    request.merge!('descriptions' => params.dig(:recipes, :descriptions))
-    request.merge!('time' => params.dig(:recipes, :time))
-    request.merge!('difficulty' => params.dig(:recipes, :difficulty))
-    request.merge!('category_id' => params.dig(:recipes, :category_id))
-    request.merge!('user_id' => params.dig(:recipes, :user_id))
+  def update
+    @error_object = @recipe.errors.messages unless @recipe.update(recipe_params)
+  end
 
-    @recipes = Recipe.all
+  def destroy
+    @error_message = true unless @recipe&.destroy
+  end
+
+  def weight_converter
+    @converter = Ingredient.weight_converter(weight_converter_params)
+  end
+
+  private
+
+  def set_recipe
+    @recipe = Recipe.find_by(id: params[:id])
+  end
+
+  def recipe_params
+    params.require(:recipe).permit(:title, :descriptions, :time, :difficulty, :user_id, :category_id, ingredients: [])
+  end
+
+  def weight_converter_params
+    params.permit(:unit_from, :unit_to, :amount)
   end
 end

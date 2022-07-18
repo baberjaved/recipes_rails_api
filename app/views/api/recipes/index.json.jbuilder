@@ -6,6 +6,7 @@ if @recipes.present?
     json.title recipe.title
     json.descriptions recipe.descriptions
     json.time recipe.time
+    json.average_rating recipe.average_rating
     json.difficulty recipe.difficulty
     json.category_id recipe.category_id
 

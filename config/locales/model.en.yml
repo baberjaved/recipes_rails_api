@@ -45,6 +45,13 @@ en:
         unit: Unit
         amount: Amount
         recipe_id: Recipe ID
+      rating:
+        id: ID
+        created_at: Created at
+        updated_at: Updated at
+        score: Score
+        user_id: User ID
+        recipe_id: Recipe ID
   enums:
     recipe:
       difficulty:

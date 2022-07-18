@@ -1,9 +1,14 @@
 class Recipe < ApplicationRecord
   include ConstantValidatable
+  include Searchable
 
   # jitera-anchor-dont-touch: relations
 
   has_many :ingredients, dependent: :destroy
+
+  has_many :ratings, dependent: :destroy
+
+  has_many :reviewers, through: :ratings, class_name: 'User', source: :user
 
   belongs_to :category
 
@@ -27,6 +32,8 @@ class Recipe < ApplicationRecord
 
   accepts_nested_attributes_for :ingredients
 
+  after_save :compute_time_in_seconds
+
   def self.associations
     [:ingredients]
   end
@@ -34,5 +41,13 @@ class Recipe < ApplicationRecord
   # jitera-anchor-dont-touch: reset_password
 
   class << self
+  end
+
+  def compute_time_in_seconds
+    if saved_changes.include? "time"
+      integer_time = time.to_i
+
+      update(time_in_seconds: integer_time.send(time.delete(' ').gsub(/\d/, '')).in_seconds)
+    end
   end
 end
